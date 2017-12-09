@@ -2,6 +2,7 @@ package de.robotricker.electricwires;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import io.sentry.Sentry;
@@ -14,7 +15,6 @@ public class ElectricWires extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		instance = this;
-		
 		initSentryOnCurrentThread();
 	}
 
