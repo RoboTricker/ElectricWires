@@ -1,0 +1,29 @@
+name: ElectricWires
+version: ${project.versionCode}
+author: RoboTricker
+main: de.robotricker.electricwires.ElectricWires
+depend: [ProtocolLib, TransportPipes]
+softdepend: [LogisticsApi]
+commands:
+  electricwires:
+    aliases: [electricwires, ewires, ewire, wires, wire]
+permissions:
+  electricwires.*:
+    children:
+      electricwires.tps: true
+      electricwires.reload: true
+      electricwires.update: true
+      electricwires.creative: true
+      electricwires.save: true
+      electricwires.delete: true
+      electricwires.craft: true
+  electricwires.craft.*:
+    default: true
+    children:
+      electricwires.craft.coloredpipe: true
+      electricwires.craft.extractionpipe: true
+      electricwires.craft.goldenpipe: true
+      electricwires.craft.icepipe: true
+      electricwires.craft.ironpipe: true
+      electricwires.craft.voidpipe: true
+      electricwires.craft.wrench: true
