@@ -19,19 +19,20 @@ import de.robotricker.electricwires.wireutils.CraftUtils;
 import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.api.TransportPipesContainer;
 import de.robotricker.transportpipes.pipes.BlockLoc;
+import de.robotricker.transportpipes.pipes.DuctType;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.rendersystem.RenderSystem;
+import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeRenderSystem;
+import de.robotricker.transportpipes.rendersystem.vanilla.utils.VanillaPipeRenderSystem;
 import io.sentry.Sentry;
 import io.sentry.event.UserBuilder;
 
 public class ElectricWires extends JavaPlugin {
 
 	public static ElectricWires instance;
-	
+
 	private Map<World, Map<BlockLoc, Wire>> registeredWires;
 	private Map<World, Map<BlockLoc, ElectricWiresContainer>> registeredContainers;
-	
-	private RenderSystem modelledWireRenderSystem;
 
 	// configs
 	public LocConf locConf;
@@ -51,13 +52,14 @@ public class ElectricWires extends JavaPlugin {
 		generalConf = new GeneralConf();
 		recipesConf = new RecipesConf();
 
-		modelledWireRenderSystem = new ModelledWireRenderSystem(TransportPipes.instance.armorStandProtocol);
-		
+		DuctType.WIRE.addRenderSystem(new ModelledWireRenderSystem(TransportPipes.instance.armorStandProtocol));
+
 		Bukkit.getPluginManager().registerEvents(new CraftUtils(), this);
-		Bukkit.getPluginManager().registerEvents(modelledWireRenderSystem, this);
-		
+		for (RenderSystem rs : DuctType.WIRE.getRenderSystems())
+			Bukkit.getPluginManager().registerEvents(rs, this);
+
 		CraftUtils.initRecipes();
-		
+
 	}
 
 	public Map<BlockLoc, Wire> getWireMap(World world) {
@@ -82,7 +84,6 @@ public class ElectricWires extends JavaPlugin {
 		return registeredContainers;
 	}
 
-	
 	public static void initSentryOnCurrentThread() {
 		Sentry.init("https://6e99a13e8f654066b8cd00927079db36:3d1a8cf711444b80bda2a6dae0b2ac9e@sentry.io/256964");
 		Sentry.getContext().setUser(new UserBuilder().setUsername("RoboTricker").build());

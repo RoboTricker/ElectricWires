@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import de.robotricker.electricwires.wires.WireType;
 import de.robotricker.electricwires.wires.types.Wire;
 import de.robotricker.transportpipes.pipes.Duct;
+import de.robotricker.transportpipes.pipes.DuctType;
 import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.pipes.types.Pipe;
 import de.robotricker.transportpipes.pipeutils.hitbox.AxisAlignedBB;
@@ -86,8 +87,13 @@ public class ModelledWireRenderSystem extends RenderSystem {
 	}
 
 	@Override
-	public int getRenderSystemId() {
-		return 1;
+	public int[] getRenderSystemIds() {
+		return new int[]{0, 1};
+	}
+	
+	@Override
+	public DuctType getDuctType() {
+		return DuctType.WIRE;
 	}
 
 }
