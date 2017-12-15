@@ -1,4 +1,4 @@
-package de.robotricker.electricwires.wireutils;
+package de.robotricker.electricwires.utils.staticutils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -11,9 +11,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 
 import de.robotricker.electricwires.ElectricWires;
-import de.robotricker.electricwires.wires.WireColor;
-import de.robotricker.electricwires.wires.WireType;
-import de.robotricker.transportpipes.pipeutils.PipeItemUtils;
+import de.robotricker.electricwires.duct.wire.utils.WireColor;
+import de.robotricker.electricwires.duct.wire.utils.WireType;
+import de.robotricker.transportpipes.duct.DuctType;
+import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
+import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
 
 public class CraftUtils implements Listener {
 
@@ -41,31 +43,31 @@ public class CraftUtils implements Listener {
 		Player viewer = (Player) e.getViewers().get(0);
 
 		if (r.getResult() != null) {
-			WireType wt = WireType.getFromWireItem(r.getResult());
-			if (wt != null) {
-				if (!viewer.hasPermission(wt.getCraftPermission())) {
+			DuctDetails ductDetails = DuctItemUtils.getDuctDetailsOfItem(r.getResult());
+			if (ductDetails != null) {
+				if (!viewer.hasPermission(ductDetails.getCraftPermission())) {
 					e.getInventory().setResult(null);
 					return;
 				}
-			} else if (PipeItemUtils.isItemStackWrench(r.getResult())) {
+			} else if (DuctItemUtils.getWrenchItem().isSimilar(r.getResult())) {
 				if (!viewer.hasPermission("transportpipes.craft.wrench")) {
 					e.getInventory().setResult(null);
 					return;
 				}
 			}
-		}
 
-		// prevent colored pipe crafting if the given pipe is not a colored pipe
-		if (WireType.getFromWireItem(r.getResult()) != null) {
-			boolean prevent = false;
-			for (int i = 1; i < 10; i++) {
-				ItemStack is = e.getInventory().getItem(i);
-				if (is != null && is.getType() == Material.SKULL_ITEM && is.getDurability() == SkullType.PLAYER.ordinal()) {
-					prevent |= WireType.getFromWireItem(is) == null;
+			if (ductDetails != null && ductDetails.getDuctType() == DuctType.WIRE) {
+				boolean prevent = false;
+				for (int i = 1; i < 10; i++) {
+					ItemStack is = e.getInventory().getItem(i);
+					if (is != null && is.getType() == Material.SKULL_ITEM && is.getDurability() == SkullType.PLAYER.ordinal()) {
+						DuctDetails isDuctDetails = DuctItemUtils.getDuctDetailsOfItem(is);
+						prevent |= isDuctDetails == null;
+					}
 				}
-			}
-			if (prevent) {
-				e.getInventory().setResult(null);
+				if (prevent) {
+					e.getInventory().setResult(null);
+				}
 			}
 		}
 	}

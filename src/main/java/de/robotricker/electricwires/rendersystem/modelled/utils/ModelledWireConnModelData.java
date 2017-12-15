@@ -1,16 +1,10 @@
 package de.robotricker.electricwires.rendersystem.modelled.utils;
 
-import de.robotricker.electricwires.wires.WireColor;
-import de.robotricker.electricwires.wires.WireType;
-import de.robotricker.electricwires.wires.types.Wire;
-import de.robotricker.transportpipes.pipes.WrappedDirection;
-import de.robotricker.transportpipes.pipes.PipeType;
-import de.robotricker.transportpipes.pipes.colored.PipeColor;
-import de.robotricker.transportpipes.pipes.goldenpipe.GoldenPipeColor;
-import de.robotricker.transportpipes.pipes.types.ColoredPipe;
-import de.robotricker.transportpipes.pipes.types.ExtractionPipe;
-import de.robotricker.transportpipes.pipes.types.IronPipe;
-import de.robotricker.transportpipes.pipes.types.Pipe;
+import de.robotricker.electricwires.duct.wire.ColoredWire;
+import de.robotricker.electricwires.duct.wire.Wire;
+import de.robotricker.electricwires.duct.wire.utils.WireColor;
+import de.robotricker.electricwires.duct.wire.utils.WireType;
+import de.robotricker.transportpipes.utils.WrappedDirection;
 
 public class ModelledWireConnModelData {
 

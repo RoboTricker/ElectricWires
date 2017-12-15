@@ -14,10 +14,11 @@ import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.material.MaterialData;
 
 import de.robotricker.electricwires.ElectricWires;
-import de.robotricker.electricwires.wires.WireColor;
-import de.robotricker.electricwires.wires.WireType;
-import de.robotricker.electricwires.wireutils.WireItemUtils;
-import de.robotricker.transportpipes.pipeutils.config.Conf;
+import de.robotricker.electricwires.duct.wire.utils.WireColor;
+import de.robotricker.electricwires.duct.wire.utils.WireType;
+import de.robotricker.electricwires.utils.ductdetails.WireDetails;
+import de.robotricker.transportpipes.utils.config.Conf;
+import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
 
 public class RecipesConf extends Conf {
 
@@ -25,11 +26,6 @@ public class RecipesConf extends Conf {
 		super(new File(ElectricWires.instance.getDataFolder().getAbsolutePath() + File.separator + "recipes.yml"), ElectricWires.instance);
 		saveShapedRecipeAsDefault("colored", 4, Arrays.asList("ggx", "gbg", "xgg"), "g", "20:0", "b", "280:0");
 		saveShapelessRecipeAsDefault("colored.white", 1, "wire", "351:15");
-		saveShapelessRecipeAsDefault("colored.blue", 1, "wire", "351:4");
-		saveShapelessRecipeAsDefault("colored.red", 1, "wire", "351:1");
-		saveShapelessRecipeAsDefault("colored.yellow", 1, "wire", "351:11");
-		saveShapelessRecipeAsDefault("colored.green", 1, "wire", "351:2");
-		saveShapelessRecipeAsDefault("colored.black", 1, "wire", "351:0");
 		finishDefault();
 	}
 
@@ -69,7 +65,12 @@ public class RecipesConf extends Conf {
 		if (wc != null) {
 			basePath += "." + wc.name().toLowerCase();
 		}
-		ItemStack resultItem = WireItemUtils.getWireItem(wt, wc).clone();
+		ItemStack resultItem;
+		if (wt == WireType.COLORED) {
+			resultItem = DuctItemUtils.getClonedDuctItem(new WireDetails(wc == null ? WireColor.WHITE : wc));
+		} else {
+			resultItem = DuctItemUtils.getClonedDuctItem(new WireDetails(wt));
+		}
 		resultItem.setAmount((int) read(basePath + ".amount"));
 		if (((String) read(basePath + ".type")).equalsIgnoreCase("shaped")) {
 			ShapedRecipe recipe = new ShapedRecipe(resultItem);

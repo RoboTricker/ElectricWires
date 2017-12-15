@@ -6,10 +6,8 @@ import org.bukkit.util.Vector;
 import de.robotricker.electricwires.rendersystem.modelled.utils.ModelledWireConnModelData;
 import de.robotricker.electricwires.rendersystem.modelled.utils.ModelledWireMidModelData;
 import de.robotricker.transportpipes.pipeitems.RelLoc;
-import de.robotricker.transportpipes.pipes.WrappedDirection;
 import de.robotricker.transportpipes.protocol.ArmorStandData;
-import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeConnModelData;
-import de.robotricker.transportpipes.rendersystem.modelled.utils.ModelledPipeMidModelData;
+import de.robotricker.transportpipes.utils.WrappedDirection;
 
 public class ModelledWireCOLOREDModel extends ModelledWireModel {
 

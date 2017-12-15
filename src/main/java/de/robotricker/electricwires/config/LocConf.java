@@ -1,14 +1,12 @@
 package de.robotricker.electricwires.config;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.ChatColor;
 
 import de.robotricker.electricwires.ElectricWires;
-import de.robotricker.transportpipes.TransportPipes;
-import de.robotricker.transportpipes.pipeutils.config.Conf;
+import de.robotricker.transportpipes.utils.config.Conf;
 
 public class LocConf extends Conf {
 
