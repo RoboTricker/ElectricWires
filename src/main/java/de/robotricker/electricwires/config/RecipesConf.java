@@ -88,10 +88,11 @@ public class RecipesConf extends Conf {
 					typeData = Byte.parseByte(itemString.split(":")[1]);
 				} else {
 					typeId = Integer.parseInt(itemString);
-					typeData = 0;
 				}
 				if (typeId != -1 && typeData != -1) {
 					recipe.setIngredient(key.charAt(0), new MaterialData(typeId, typeData));
+				} else if (typeId != -1) {
+					recipe.setIngredient(key.charAt(0), Material.getMaterial(typeId), -1);
 				}
 			}
 			return recipe;
@@ -109,10 +110,11 @@ public class RecipesConf extends Conf {
 					typeData = Byte.parseByte(itemString.split(":")[1]);
 				} else {
 					typeId = Integer.parseInt(itemString);
-					typeData = 0;
 				}
 				if (typeId != -1 && typeData != -1) {
 					recipe.addIngredient(new MaterialData(typeId, typeData));
+				} else if (typeId != -1) {
+					recipe.addIngredient(Material.getMaterial(typeId), -1);
 				}
 			}
 			return recipe;
