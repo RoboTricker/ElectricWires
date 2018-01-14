@@ -69,11 +69,15 @@ public class WireNetwork {
 					}
 				});
 			}
+			int avgEnergy = (int) (networkCharge / inputBlocks.size());
+			int overflow = (int) networkCharge % inputBlocks.size();
+			int i = 0;
 			for (EnergyInput input : inputBlocks) {
-				networkCharge -= input.receiveEnergy(LogisticBlockFace.NORTH, networkCharge, false);
+				networkCharge -= input.receiveEnergy(LogisticBlockFace.NORTH, avgEnergy + (i == 0 ? overflow : 0), false);
 				if (networkCharge <= 0) {
 					break;
 				}
+				i++;
 			}
 		}
 		//remove energy if no energystorage blocks are connected
@@ -137,7 +141,8 @@ public class WireNetwork {
 						if (connected) {
 							if (lb instanceof EnergyInput) {
 								inputBlocks.add((EnergyInput) lb);
-							} else if (lb instanceof EnergyOutput) {
+							}
+							if (lb instanceof EnergyOutput) {
 								outputBlocks.add((EnergyOutput) lb);
 							}
 						}
