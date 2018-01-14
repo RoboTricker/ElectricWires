@@ -51,15 +51,18 @@ public class WireNetwork {
 	public void update() {
 		// take energy
 		if (networkCharge < maxCharge) {
+			long sumOfMaxEnergyExtract = 0;
+			long chargeUp = maxCharge - networkCharge;
 			for (EnergyOutput output : outputBlocks) {
-				long chargeUp = maxCharge - networkCharge;
-				if (chargeUp > output.getMaxEnergyExtract()) {
-					chargeUp = output.getMaxEnergyExtract();
+				sumOfMaxEnergyExtract += output.getMaxEnergyExtract();
+			}
+			for (EnergyOutput output : outputBlocks) {
+				float percentage = output.getMaxEnergyExtract() / 1f / sumOfMaxEnergyExtract;
+				long takeEnergy = (long) Math.ceil(percentage * chargeUp);
+				if (networkCharge + takeEnergy > maxCharge) {
+					takeEnergy = maxCharge - networkCharge;
 				}
-				networkCharge += output.extractEnergy(LogisticBlockFace.NORTH, chargeUp, false);
-				if (networkCharge >= maxCharge) {
-					break;
-				}
+				networkCharge += output.extractEnergy(LogisticBlockFace.NORTH, takeEnergy, false);
 			}
 		}
 		// put energy
@@ -73,15 +76,18 @@ public class WireNetwork {
 					}
 				});
 			}
-			long avgEnergy = inputBlocks.isEmpty() ? networkCharge : (long) (networkCharge / inputBlocks.size());
-			int overflow = inputBlocks.isEmpty() ? 0 : (int) networkCharge % inputBlocks.size();
-			int i = 0;
+			long sumOfMaxEnergyReceive = 0;
+			long beginningNetworkCharge = networkCharge;
 			for (EnergyInput input : inputBlocks) {
-				networkCharge -= input.receiveEnergy(LogisticBlockFace.NORTH, avgEnergy + (i == 0 ? overflow : 0), false);
-				if (networkCharge <= 0) {
-					break;
+				sumOfMaxEnergyReceive += input.getMaxEnergyReceive();
+			}
+			for (EnergyInput input : inputBlocks) {
+				float percentage = input.getMaxEnergyReceive() / 1f / sumOfMaxEnergyReceive;
+				long receiveEnergy = (long) Math.ceil(percentage * beginningNetworkCharge);
+				if (networkCharge - receiveEnergy < 0) {
+					receiveEnergy = networkCharge;
 				}
-				i++;
+				networkCharge -= input.receiveEnergy(LogisticBlockFace.NORTH, receiveEnergy, false);
 			}
 		}
 		// remove energy if no energystorage blocks are connected
@@ -114,7 +120,7 @@ public class WireNetwork {
 	}
 
 	public void calcMaxCharge() {
-		maxCharge = wires.size() * 10;
+		maxCharge = wires.size() * 100;
 		if (networkCharge > maxCharge) {
 			networkCharge = maxCharge;
 		}
