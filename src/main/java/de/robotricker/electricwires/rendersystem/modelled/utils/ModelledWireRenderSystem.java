@@ -199,11 +199,6 @@ public class ModelledWireRenderSystem extends RenderSystem {
 	}
 
 	@Override
-	public void initPlayer(Player p) {
-
-	}
-
-	@Override
 	public int[] getRenderSystemIds() {
 		return new int[]{0, 1};
 	}
@@ -211,6 +206,11 @@ public class ModelledWireRenderSystem extends RenderSystem {
 	@Override
 	public DuctType getDuctType() {
 		return DuctType.WIRE;
+	}
+	
+	@Override
+	public boolean usesResourcePack() {
+		return true;
 	}
 
 }

@@ -49,6 +49,9 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
 				<version>3.1.0</version>
+				<configuration>
+					<createDependencyReducedPom>false</createDependencyReducedPom>
+				</configuration>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -203,7 +206,7 @@
 		<dependency>
 			<groupId>com.logisticscraft</groupId>
 			<artifactId>logistics-api</artifactId>
-			<version>0.0.4-SNAPSHOT</version>
+			<version>0.0.5-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
