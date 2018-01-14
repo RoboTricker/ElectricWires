@@ -44,6 +44,10 @@ public class WireNetwork {
 		return world;
 	}
 
+	public long getNetworkCharge() {
+		return networkCharge;
+	}
+
 	public void update() {
 		// take energy
 		if (networkCharge < maxCharge) {
@@ -69,8 +73,8 @@ public class WireNetwork {
 					}
 				});
 			}
-			int avgEnergy = (int) (networkCharge / inputBlocks.size());
-			int overflow = (int) networkCharge % inputBlocks.size();
+			long avgEnergy = inputBlocks.isEmpty() ? networkCharge : (long) (networkCharge / inputBlocks.size());
+			int overflow = inputBlocks.isEmpty() ? 0 : (int) networkCharge % inputBlocks.size();
 			int i = 0;
 			for (EnergyInput input : inputBlocks) {
 				networkCharge -= input.receiveEnergy(LogisticBlockFace.NORTH, avgEnergy + (i == 0 ? overflow : 0), false);
@@ -80,8 +84,8 @@ public class WireNetwork {
 				i++;
 			}
 		}
-		//remove energy if no energystorage blocks are connected
-		if(inputBlocks.isEmpty() && outputBlocks.isEmpty()) {
+		// remove energy if no energystorage blocks are connected
+		if (inputBlocks.isEmpty() && outputBlocks.isEmpty()) {
 			networkCharge = Math.max(0, networkCharge - 50);
 		}
 

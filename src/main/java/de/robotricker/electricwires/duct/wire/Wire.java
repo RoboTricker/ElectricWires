@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import com.logisticscraft.logisticsapi.LogisticsApi;
 import com.logisticscraft.logisticsapi.block.LogisticBlock;
@@ -16,13 +17,14 @@ import com.logisticscraft.logisticsapi.energy.EnergyStorage;
 import de.robotricker.electricwires.ElectricWires;
 import de.robotricker.electricwires.WireNetwork;
 import de.robotricker.electricwires.duct.wire.utils.WireType;
+import de.robotricker.transportpipes.duct.ClickableDuct;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctType;
 import de.robotricker.transportpipes.utils.BlockLoc;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 import de.robotricker.transportpipes.utils.tick.TickData;
 
-public abstract class Wire extends Duct {
+public abstract class Wire extends Duct implements ClickableDuct{
 
 	private WireNetwork network;
 
@@ -87,6 +89,11 @@ public abstract class Wire extends Duct {
 	@Override
 	public DuctType getDuctType() {
 		return DuctType.WIRE;
+	}
+	
+	@Override
+	public void click(Player p, WrappedDirection side) {
+		p.sendMessage("Energy: " + getWireNetwork().getNetworkCharge());
 	}
 
 }
