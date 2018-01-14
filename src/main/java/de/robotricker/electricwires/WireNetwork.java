@@ -80,7 +80,6 @@ public class WireNetwork {
 		if(inputBlocks.isEmpty() && outputBlocks.isEmpty()) {
 			networkCharge = Math.max(0, networkCharge - 50);
 		}
-		System.out.println("charge: " + networkCharge);
 
 	}
 

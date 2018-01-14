@@ -161,7 +161,6 @@ public class ElectricWires extends JavaPlugin {
 						bigNetwork.addWire(wire);
 						wire.setWireNetwork(bigNetwork);
 					}
-					System.out.println("networks: " + wireNetworks.size());
 				}
 			}
 
@@ -207,7 +206,6 @@ public class ElectricWires extends JavaPlugin {
 							}
 						}
 					}
-					System.out.println("networks: " + wireNetworks.size());
 				}
 			}
 
