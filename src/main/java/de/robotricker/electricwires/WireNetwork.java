@@ -1,10 +1,11 @@
 package de.robotricker.electricwires;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -21,13 +22,11 @@ import com.logisticscraft.logisticsapi.energy.EnergyStorage;
 
 import de.robotricker.electricwires.duct.wire.Wire;
 import de.robotricker.electricwires.utils.staticutils.ProtocolUtils;
-import de.robotricker.transportpipes.TransportPipes;
 import de.robotricker.transportpipes.utils.WrappedDirection;
 
 public class WireNetwork {
 
 	private long networkCharge;
-	private long maxCharge;
 	private World world;
 	private Set<Wire> wires;
 	private Set<EnergyOutput> outputBlocks;
@@ -49,26 +48,77 @@ public class WireNetwork {
 	}
 
 	public void update() {
-		// take energy
-		if (networkCharge < maxCharge) {
-			long sumOfMaxEnergyExtract = 0;
-			long chargeUp = maxCharge - networkCharge;
-			for (EnergyOutput output : outputBlocks) {
-				sumOfMaxEnergyExtract += output.getMaxEnergyExtract();
-			}
-			for (EnergyOutput output : outputBlocks) {
-				float percentage = output.getMaxEnergyExtract() / 1f / sumOfMaxEnergyExtract;
-				long takeEnergy = (long) Math.ceil(percentage * chargeUp);
-				if (networkCharge + takeEnergy > maxCharge) {
-					takeEnergy = maxCharge - networkCharge;
+		int internalStorage = 0;
+		int transferRate = 100;
+
+		// calculate needed energy
+		int neededEnergy = 0;
+		for (EnergyInput ei : inputBlocks) {
+			int putRate = (int) ei.getMaxEnergyReceive();
+			neededEnergy += Math.min(Math.min(putRate, transferRate), ei.getFreeSpace());
+		}
+
+		// calculate extracted energy
+		Map<EnergyOutput, AtomicInteger> energyTaken = new HashMap<>();
+		int totalEnergyTaken = 0;
+		while (totalEnergyTaken < neededEnergy) {
+			boolean extracted = false;
+			for (EnergyOutput eo : outputBlocks) {
+				int extractRate = (int) eo.getMaxEnergyExtract();
+				int takeEnergy = Math.min(Math.min(extractRate, transferRate), (int) eo.getStoredEnergy());
+				int alreadyTakenEnergy = energyTaken.computeIfAbsent(eo, (t) -> new AtomicInteger(0)).get();
+				if (alreadyTakenEnergy < takeEnergy && totalEnergyTaken < neededEnergy) {
+					energyTaken.get(eo).incrementAndGet();
+					totalEnergyTaken++;
+					extracted = true;
 				}
-				networkCharge += output.extractEnergy(LogisticBlockFace.NORTH, takeEnergy, false);
+			}
+			// there is the need to extract more energy but all EnergyOutputs are empty
+			if (!extracted) {
+				break;
 			}
 		}
+
+		// extract energy
+		for (EnergyOutput eo : outputBlocks) {
+			if (energyTaken.containsKey(eo)) {
+				internalStorage += eo.extractEnergy(LogisticBlockFace.NORTH, energyTaken.get(eo).get(), false);
+			}
+		}
+
+		networkCharge = internalStorage;
+
+		// calculate put energy
+		Map<EnergyInput, AtomicInteger> energyPut = new HashMap<>();
+		int totalEnergyPut = 0;
+		while (totalEnergyPut < internalStorage) {
+			boolean put = false;
+			for (EnergyInput ei : inputBlocks) {
+				int putRate = (int) ei.getMaxEnergyReceive();
+				int putEnergy = Math.min(Math.min(putRate, transferRate), (int) ei.getFreeSpace());
+				int alreadyPutEnergy = energyPut.computeIfAbsent(ei, (t) -> new AtomicInteger(0)).get();
+				if (alreadyPutEnergy < putEnergy && totalEnergyPut < internalStorage) {
+					energyPut.get(ei).incrementAndGet();
+					totalEnergyPut++;
+					put = true;
+				}
+			}
+			// there is the need to extract more energy but all EnergyOutputs are empty
+			if (!put) {
+				break;
+			}
+		}
+
 		// put energy
+		for (EnergyInput ei : inputBlocks) {
+			if (energyPut.containsKey(ei)) {
+				ei.receiveEnergy(LogisticBlockFace.NORTH, energyPut.get(ei).get(), false);
+			}
+		}
+
 		if (networkCharge > 0) {
 			for (final Wire wire : wires) {
-				Bukkit.getScheduler().runTask(TransportPipes.instance, new Runnable() {
+				Bukkit.getScheduler().runTask(ElectricWires.instance, new Runnable() {
 
 					@Override
 					public void run() {
@@ -76,31 +126,12 @@ public class WireNetwork {
 					}
 				});
 			}
-			long sumOfMaxEnergyReceive = 0;
-			long beginningNetworkCharge = networkCharge;
-			for (EnergyInput input : inputBlocks) {
-				sumOfMaxEnergyReceive += input.getMaxEnergyReceive();
-			}
-			for (EnergyInput input : inputBlocks) {
-				float percentage = input.getMaxEnergyReceive() / 1f / sumOfMaxEnergyReceive;
-				long receiveEnergy = (long) Math.ceil(percentage * beginningNetworkCharge);
-				if (networkCharge - receiveEnergy < 0) {
-					receiveEnergy = networkCharge;
-				}
-				networkCharge -= input.receiveEnergy(LogisticBlockFace.NORTH, receiveEnergy, false);
-			}
 		}
-		// remove energy if no energystorage blocks are connected
-		if (inputBlocks.isEmpty() && outputBlocks.isEmpty()) {
-			networkCharge = Math.max(0, networkCharge - 50);
-		}
-
 	}
 
 	public void addWire(Wire wire) {
 		if (wires.add(wire)) {
 			updateEnergyStorages();
-			calcMaxCharge();
 		}
 	}
 
@@ -111,19 +142,11 @@ public class WireNetwork {
 	public void removeWire(Wire wire) {
 		if (wires.remove(wire)) {
 			updateEnergyStorages();
-			calcMaxCharge();
 		}
 	}
 
 	public Set<Wire> getWires() {
 		return wires;
-	}
-
-	public void calcMaxCharge() {
-		maxCharge = wires.size() * 100;
-		if (networkCharge > maxCharge) {
-			networkCharge = maxCharge;
-		}
 	}
 
 	public void updateEnergyStorages() {

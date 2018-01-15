@@ -202,7 +202,6 @@ public class ElectricWires extends JavaPlugin {
 								updateConnectedWiresNetworkRekursive(neighborWire, ductMap);
 
 								newNetwork.updateEnergyStorages();
-								newNetwork.calcMaxCharge();
 							}
 						}
 					}

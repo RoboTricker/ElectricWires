@@ -41,8 +41,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.7.0</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -65,7 +65,7 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<profiles>
 		<!-- Jenkins profile -->
 		<!-- Set the buildNumber using the jenkins env. variable -->
@@ -225,6 +225,12 @@
 			<groupId>de.robotricker</groupId>
 			<artifactId>transportpipes</artifactId>
 			<version>4.3.0-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>23.6-jre</version>
 			<scope>compile</scope>
 		</dependency>
 		<!--<dependency> <groupId>org.bstats</groupId> <artifactId>bstats-bukkit</artifactId> 
