@@ -80,6 +80,14 @@ public class ElectricWires extends JavaPlugin {
 						}
 					}
 				}
+				
+				//tick wirenetworks
+				synchronized (wireNetworks) {
+					for (WireNetwork network : wireNetworks) {
+						network.update();
+					}
+				}
+				
 			}
 		});
 
@@ -87,11 +95,7 @@ public class ElectricWires extends JavaPlugin {
 
 			@Override
 			public void run() {
-				synchronized (wireNetworks) {
-					for (WireNetwork network : wireNetworks) {
-						network.update();
-					}
-				}
+				
 			}
 		}, 10, 10);
 
@@ -166,6 +170,7 @@ public class ElectricWires extends JavaPlugin {
 
 			@EventHandler
 			public void onDuctUnregistration(DuctUnregistrationEvent e) {
+				System.out.println(Thread.currentThread().getName() + " : " + e.isAsynchronous());
 				if (e.getDuct().getDuctType() == DuctType.WIRE) {
 					Wire wire = (Wire) e.getDuct();
 					Map<BlockLoc, Duct> ductMap = TransportPipes.instance.getDuctMap(e.getDuct().getBlockLoc().getWorld());
