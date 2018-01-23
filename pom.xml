@@ -66,6 +66,14 @@
 		</plugins>
 	</build>
 
+	<distributionManagement>
+		<repository>
+			<id>maven-public</id>
+			<name>FrontFight Repository</name>
+			<url>http://repo.frontfight.net/repository/maven-public/</url>
+		</repository>
+	</distributionManagement>
+	
 	<profiles>
 		<!-- Jenkins profile -->
 		<!-- Set the buildNumber using the jenkins env. variable -->
