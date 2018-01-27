@@ -117,7 +117,6 @@ public class ElectricWires extends JavaPlugin {
 
 		CraftUtils.initRecipes();
 
-					} else {
 		Bukkit.getPluginManager().registerEvents(new RegistrationListener(this), this);
 
 	}
