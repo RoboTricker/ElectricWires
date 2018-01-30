@@ -102,14 +102,6 @@ public class ElectricWires extends JavaPlugin {
 			}
 		});
 
-		Bukkit.getScheduler().runTaskTimer(this, new Runnable() {
-
-			@Override
-			public void run() {
-				
-			}
-		}, 10, 10);
-
 		locConf = new LocConf();
 		generalConf = new GeneralConf();
 		recipesConf = new RecipesConf();
@@ -150,6 +142,24 @@ public class ElectricWires extends JavaPlugin {
 	public static void initSentryOnCurrentThread() {
 		Sentry.getContext().addTag("thread", Thread.currentThread().getName());
 		Sentry.getContext().addTag("version", ElectricWires.instance.getDescription().getVersion());
+	}
+	
+	public static void runTask(Runnable task) {
+		if (instance.isEnabled()) {
+			Bukkit.getScheduler().runTask(instance, task);
+		}
+	}
+
+	public static void runTaskLater(Runnable task, long delay) {
+		if (instance.isEnabled()) {
+			Bukkit.getScheduler().runTaskLater(instance, task, delay);
+		}
+	}
+	
+	public static void runTaskAsynchronously(Runnable task) {
+		if (instance.isEnabled()) {
+			Bukkit.getScheduler().runTaskAsynchronously(instance, task);
+		}
 	}
 
 }

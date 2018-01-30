@@ -133,7 +133,7 @@ public class RegistrationListener implements Listener {
 		if (e.getLogisticBlock() instanceof EnergyStorage) {
 			for (final WireNetwork network : electricWires.wireNetworks) {
 				if (network.getWorld().equals(e.getLocation().getWorld())) {
-					Bukkit.getScheduler().runTask(ElectricWires.instance, new Runnable() {
+					ElectricWires.runTask(new Runnable() {
 						@Override
 						public void run() {
 							network.updateEnergyStorages();
@@ -167,7 +167,7 @@ public class RegistrationListener implements Listener {
 		if (e.getLogisticBlock() instanceof EnergyStorage) {
 			for (final WireNetwork network : electricWires.wireNetworks) {
 				if (network.getWorld().equals(e.getLocation().getWorld())) {
-					Bukkit.getScheduler().runTask(ElectricWires.instance, new Runnable() {
+					ElectricWires.runTask(new Runnable() {
 						@Override
 						public void run() {
 							network.updateEnergyStorages();

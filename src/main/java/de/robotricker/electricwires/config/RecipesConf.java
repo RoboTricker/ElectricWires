@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.SkullType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
@@ -61,6 +62,8 @@ public class RecipesConf extends Conf {
 	}
 
 	public Recipe createWireRecipe(WireType wt, WireColor wc) {
+		NamespacedKey nk = createRecipeKey("wire-" + wt + "-" + wc);
+		
 		String basePath = "recipe." + wt.name().toLowerCase();
 		if (wc != null) {
 			basePath += "." + wc.name().toLowerCase();
@@ -73,7 +76,7 @@ public class RecipesConf extends Conf {
 		}
 		resultItem.setAmount((int) read(basePath + ".amount"));
 		if (((String) read(basePath + ".type")).equalsIgnoreCase("shaped")) {
-			ShapedRecipe recipe = new ShapedRecipe(resultItem);
+			ShapedRecipe recipe = new ShapedRecipe(nk, resultItem);
 			recipe.shape(((List<String>) read(basePath + ".shape")).toArray(new String[0]));
 			Collection<String> subKeys = readSubKeys(basePath + ".ingredients");
 			for (String key : subKeys) {
@@ -97,7 +100,7 @@ public class RecipesConf extends Conf {
 			}
 			return recipe;
 		} else if (((String) read(basePath + ".type")).equalsIgnoreCase("shapeless")) {
-			ShapelessRecipe recipe = new ShapelessRecipe(resultItem);
+			ShapelessRecipe recipe = new ShapelessRecipe(nk, resultItem);
 			List<String> ingredients = (List<String>) read(basePath + ".ingredients");
 			for (String itemString : ingredients) {
 				int typeId = -1;
@@ -120,6 +123,10 @@ public class RecipesConf extends Conf {
 			return recipe;
 		}
 		return null;
+	}
+	
+	private NamespacedKey createRecipeKey(String key) {
+		return new NamespacedKey(ElectricWires.instance, key);
 	}
 
 }

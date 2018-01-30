@@ -118,7 +118,7 @@ public class WireNetwork {
 
 		if (networkCharge > 0) {
 			for (final Wire wire : wires) {
-				Bukkit.getScheduler().runTask(ElectricWires.instance, new Runnable() {
+				ElectricWires.runTask(new Runnable() {
 
 					@Override
 					public void run() {
