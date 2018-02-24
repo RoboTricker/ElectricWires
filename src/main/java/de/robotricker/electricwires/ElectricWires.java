@@ -57,7 +57,7 @@ public class ElectricWires extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		instance = this;
-		
+
 		Sentry.init("https://6e99a13e8f654066b8cd00927079db36:3d1a8cf711444b80bda2a6dae0b2ac9e@sentry.io/256964?stacktrace.app.packages=de.robotricker");
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 
@@ -67,7 +67,7 @@ public class ElectricWires extends JavaPlugin {
 			}
 		});
 		initSentryOnCurrentThread();
-		
+
 		DuctType.WIRE.setDuctDetailsClass(WireDetails.class);
 		DuctType.WIRE.setTickRunnable(new TickRunnable() {
 
@@ -91,14 +91,14 @@ public class ElectricWires extends JavaPlugin {
 						}
 					}
 				}
-				
-				//tick wirenetworks
+
+				// tick wirenetworks
 				synchronized (wireNetworks) {
 					for (WireNetwork network : wireNetworks) {
 						network.update();
 					}
 				}
-				
+
 			}
 		});
 
@@ -115,7 +115,9 @@ public class ElectricWires extends JavaPlugin {
 
 		DuctType.WIRE.addRenderSystem(new ModelledWireRenderSystem(TransportPipes.instance.ductManager));
 
-		Bukkit.getPluginManager().registerEvents(new CraftUtils(), this);
+		if (TransportPipes.instance.generalConf.isCraftingEnabled()) {
+			Bukkit.getPluginManager().registerEvents(new CraftUtils(), this);
+		}
 
 		CraftUtils.initRecipes();
 
@@ -143,7 +145,7 @@ public class ElectricWires extends JavaPlugin {
 		Sentry.getContext().addTag("thread", Thread.currentThread().getName());
 		Sentry.getContext().addTag("version", ElectricWires.instance.getDescription().getVersion());
 	}
-	
+
 	public static void runTask(Runnable task) {
 		if (instance.isEnabled()) {
 			Bukkit.getScheduler().runTask(instance, task);
@@ -155,7 +157,7 @@ public class ElectricWires extends JavaPlugin {
 			Bukkit.getScheduler().runTaskLater(instance, task, delay);
 		}
 	}
-	
+
 	public static void runTaskAsynchronously(Runnable task) {
 		if (instance.isEnabled()) {
 			Bukkit.getScheduler().runTaskAsynchronously(instance, task);
