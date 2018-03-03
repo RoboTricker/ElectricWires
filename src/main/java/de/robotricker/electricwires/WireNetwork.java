@@ -79,15 +79,6 @@ public class WireNetwork {
 			}
 		}
 
-		// extract energy
-		for (EnergyOutput eo : outputBlocks) {
-			if (energyTaken.containsKey(eo)) {
-				internalStorage += eo.extractEnergy(LogisticBlockFace.NORTH, energyTaken.get(eo).get(), false);
-			}
-		}
-
-		networkCharge = internalStorage;
-
 		// calculate put energy
 		Map<EnergyInput, AtomicInteger> energyPut = new HashMap<>();
 		int totalEnergyPut = 0;
@@ -108,6 +99,29 @@ public class WireNetwork {
 				break;
 			}
 		}
+
+		for (EnergyInput e : inputBlocks) {
+			if (e instanceof EnergyOutput) {
+				int putEnergy = energyPut.get(e).get();
+				int takeEnergy = energyTaken.get(e).get();
+				if (putEnergy > takeEnergy) {
+					energyPut.get(e).addAndGet(-takeEnergy);
+					energyTaken.get(e).set(0);
+				} else {
+					energyTaken.get(e).addAndGet(-putEnergy);
+					energyPut.get(e).set(0);
+				}
+			}
+		}
+
+		// extract energy
+		for (EnergyOutput eo : outputBlocks) {
+			if (energyTaken.containsKey(eo)) {
+				internalStorage += eo.extractEnergy(LogisticBlockFace.NORTH, energyTaken.get(eo).get(), false);
+			}
+		}
+		
+		networkCharge = internalStorage;
 
 		// put energy
 		for (EnergyInput ei : inputBlocks) {
