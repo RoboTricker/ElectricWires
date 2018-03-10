@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -18,7 +19,13 @@ import de.robotricker.electricwires.ElectricWires;
 import de.robotricker.electricwires.duct.wire.utils.WireColor;
 import de.robotricker.electricwires.duct.wire.utils.WireType;
 import de.robotricker.electricwires.utils.ductdetails.WireDetails;
+import de.robotricker.transportpipes.TransportPipes;
+import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
+import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
 import de.robotricker.transportpipes.utils.config.Conf;
+import de.robotricker.transportpipes.utils.crafting.TPShapedRecipe;
+import de.robotricker.transportpipes.utils.crafting.TPShapelessRecipe;
+import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
 import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
 
 public class RecipesConf extends Conf {
@@ -62,11 +69,11 @@ public class RecipesConf extends Conf {
 	}
 
 	public Recipe createWireRecipe(WireType wt, WireColor wc) {
-		NamespacedKey nk = createRecipeKey("wire-" + wt + "-" + wc);
-		
-		String basePath = "recipe." + wt.name().toLowerCase();
+		Object nk = createRecipeKey("wire-" + wt + (wc != null ? "-" + wc : ""));
+
+		String basePath = "recipe." + wt.name().toLowerCase(Locale.ENGLISH);
 		if (wc != null) {
-			basePath += "." + wc.name().toLowerCase();
+			basePath += "." + wc.name().toLowerCase(Locale.ENGLISH);
 		}
 		ItemStack resultItem;
 		if (wt == WireType.COLORED) {
@@ -76,57 +83,44 @@ public class RecipesConf extends Conf {
 		}
 		resultItem.setAmount((int) read(basePath + ".amount"));
 		if (((String) read(basePath + ".type")).equalsIgnoreCase("shaped")) {
-			ShapedRecipe recipe = new ShapedRecipe(nk, resultItem);
+			TPShapedRecipe recipe = nk != null ? new TPShapedRecipe((org.bukkit.NamespacedKey) nk, resultItem) : new TPShapedRecipe(resultItem);
 			recipe.shape(((List<String>) read(basePath + ".shape")).toArray(new String[0]));
 			Collection<String> subKeys = readSubKeys(basePath + ".ingredients");
 			for (String key : subKeys) {
 				String itemString = (String) read(basePath + ".ingredients." + key);
-				int typeId = -1;
-				byte typeData = -1;
-				if (itemString.equalsIgnoreCase("wire")) {
-					typeId = Material.SKULL_ITEM.getId();
-					typeData = (byte) SkullType.PLAYER.ordinal();
-				} else if (itemString.contains(":")) {
-					typeId = Integer.parseInt(itemString.split(":")[0]);
-					typeData = Byte.parseByte(itemString.split(":")[1]);
-				} else {
-					typeId = Integer.parseInt(itemString);
-				}
-				if (typeId != -1 && typeData != -1) {
-					recipe.setIngredient(key.charAt(0), new MaterialData(typeId, typeData));
-				} else if (typeId != -1) {
-					recipe.setIngredient(key.charAt(0), Material.getMaterial(typeId), -1);
-				}
+				recipe.setIngredient(key.charAt(0), itemString);
+				// if (item.getData().getData() == 0) {
+				// recipe.setIngredient(key.charAt(0), item.getType(), -1);
+				// } else {
+				// recipe.setIngredient(key.charAt(0), item.getData());
+				// }
 			}
+			recipe.register();
 			return recipe;
 		} else if (((String) read(basePath + ".type")).equalsIgnoreCase("shapeless")) {
-			ShapelessRecipe recipe = new ShapelessRecipe(nk, resultItem);
+			TPShapelessRecipe recipe = nk != null ? new TPShapelessRecipe((org.bukkit.NamespacedKey) nk, resultItem) : new TPShapelessRecipe(resultItem);
 			List<String> ingredients = (List<String>) read(basePath + ".ingredients");
 			for (String itemString : ingredients) {
-				int typeId = -1;
-				byte typeData = -1;
-				if (itemString.equalsIgnoreCase("wire")) {
-					typeId = Material.SKULL_ITEM.getId();
-					typeData = (byte) SkullType.PLAYER.ordinal();
-				} else if (itemString.contains(":")) {
-					typeId = Integer.parseInt(itemString.split(":")[0]);
-					typeData = Byte.parseByte(itemString.split(":")[1]);
-				} else {
-					typeId = Integer.parseInt(itemString);
-				}
-				if (typeId != -1 && typeData != -1) {
-					recipe.addIngredient(new MaterialData(typeId, typeData));
-				} else if (typeId != -1) {
-					recipe.addIngredient(Material.getMaterial(typeId), -1);
-				}
+				recipe.addIngredient(itemString);
+				// if (item.getData().getData() == 0) {
+				// recipe.addIngredient(item.getType(), -1);
+				// } else {
+				// recipe.addIngredient(item.getData());
+				// }
 			}
+			recipe.register();
 			return recipe;
 		}
 		return null;
 	}
 	
-	private NamespacedKey createRecipeKey(String key) {
-		return new NamespacedKey(ElectricWires.instance, key);
+	private Object createRecipeKey(String key) {
+		try {
+			Class.forName("org.bukkit.NamespacedKey");
+		} catch (ClassNotFoundException e) {
+			return null;
+		}
+		return new org.bukkit.NamespacedKey(TransportPipes.instance, key);
 	}
 
 }

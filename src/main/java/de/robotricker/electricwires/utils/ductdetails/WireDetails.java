@@ -1,6 +1,9 @@
 package de.robotricker.electricwires.utils.ductdetails;
 
+import java.util.Locale;
+
 import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
 
 import de.robotricker.electricwires.duct.wire.ColoredWire;
 import de.robotricker.electricwires.duct.wire.utils.WireColor;
@@ -17,6 +20,7 @@ import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
 import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
 import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
 import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
+import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
 import io.sentry.Sentry;
 
 public class WireDetails extends DuctDetails {
@@ -90,34 +94,62 @@ public class WireDetails extends DuctDetails {
 		if (getClass() != obj.getClass())
 			return false;
 		WireDetails other = (WireDetails) obj;
+		if (wireType == null || other.wireType == null)
+			return true;
 		if (wireType != other.wireType)
 			return false;
-		if (wireType == WireType.COLORED && wireColor != other.wireColor)
+		if (wireType == WireType.COLORED && wireColor != null && other.wireColor != null && wireColor != other.wireColor)
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		String pipeTypeString = "WireType:" + wireType.name() + ";";
-		String pipeColorString = wireColor != null ? "WireColor:" + wireColor.name() + ";" : "";
-		return super.toString() + pipeTypeString + pipeColorString;
+		String wireTypeString = wireType != null ? ":" + wireType.name().toLowerCase(Locale.ENGLISH) : "";
+		String wireColorString = wireColor != null ? ":" + wireColor.name().toLowerCase(Locale.ENGLISH) : "";
+		return super.toString() + wireTypeString + wireColorString;
 	}
 
 	@Override
-	public void fromString(String serialization) {
+	public void deserialize(String serialization) {
 		try {
-			for (String element : serialization.split(";")) {
-				if (element.startsWith("WireType:")) {
-					setWireType(WireType.valueOf(element.substring(9)));
-				} else if (element.startsWith("WireColor:")) {
-					setWireColor(WireColor.valueOf(element.substring(10)));
+			String wireTypeName = null;
+			if (serialization.contains("WireType:")) {
+				wireTypeName = serialization.split(";")[1].split(":")[1];
+			} else if (serialization.split(":").length >= 2) {
+				wireTypeName = serialization.split(":")[1];
+			}
+			setWireType(wireTypeName != null ? WireType.valueOf(wireTypeName.toUpperCase(Locale.ENGLISH)) : null);
+			if (getWireType() == WireType.COLORED) {
+				String wireColorName = null;
+				if (serialization.contains("WireColor:")) {
+					wireColorName = serialization.split(";")[2].split(":")[1];
+				} else if (serialization.split(":").length >= 3) {
+					wireColorName = serialization.split(":")[2];
 				}
+				setWireColor(wireColorName != null ? WireColor.valueOf(wireColorName.toUpperCase(Locale.ENGLISH)) : null);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			Sentry.capture(e);
+			throw new IllegalArgumentException(serialization + " does not fit the serialization format");
 		}
+		
 	}
 
+
+	@Override
+	public boolean doesItemStackMatchesDuctDetails(ItemStack itemStack) {
+		DuctDetails dd = DuctItemUtils.getDuctDetailsOfItem(itemStack);
+		if (dd != null && ductType == dd.getDuctType()) {
+			WireDetails wd = (WireDetails) dd;
+			if (wireType == null) {
+				return true;
+			} else if (wireColor == null) {
+				return wireType == wd.wireType;
+			} else {
+				return wireType == wd.wireType && wireColor == wd.wireColor;
+			}
+		}
+		return false;
+	}
+	
 }
