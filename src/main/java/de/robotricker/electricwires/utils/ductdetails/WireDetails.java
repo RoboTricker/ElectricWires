@@ -10,18 +10,8 @@ import de.robotricker.electricwires.duct.wire.utils.WireColor;
 import de.robotricker.electricwires.duct.wire.utils.WireType;
 import de.robotricker.transportpipes.duct.Duct;
 import de.robotricker.transportpipes.duct.DuctType;
-import de.robotricker.transportpipes.duct.pipe.ColoredPipe;
-import de.robotricker.transportpipes.duct.pipe.ExtractionPipe;
-import de.robotricker.transportpipes.duct.pipe.GoldenPipe;
-import de.robotricker.transportpipes.duct.pipe.IcePipe;
-import de.robotricker.transportpipes.duct.pipe.IronPipe;
-import de.robotricker.transportpipes.duct.pipe.VoidPipe;
-import de.robotricker.transportpipes.duct.pipe.utils.PipeColor;
-import de.robotricker.transportpipes.duct.pipe.utils.PipeType;
 import de.robotricker.transportpipes.utils.ductdetails.DuctDetails;
-import de.robotricker.transportpipes.utils.ductdetails.PipeDetails;
 import de.robotricker.transportpipes.utils.staticutils.DuctItemUtils;
-import io.sentry.Sentry;
 
 public class WireDetails extends DuctDetails {
 
@@ -60,7 +50,9 @@ public class WireDetails extends DuctDetails {
 
 	public void setWireType(WireType wireType) {
 		this.wireType = wireType;
-		setCraftPermission(wireType.getCraftPermission());
+		if (wireType != null) {
+			setCraftPermission(wireType.getCraftPermission());
+		}
 	}
 
 	public void setWireColor(WireColor wireColor) {
@@ -132,9 +124,8 @@ public class WireDetails extends DuctDetails {
 		} catch (Exception e) {
 			throw new IllegalArgumentException(serialization + " does not fit the serialization format");
 		}
-		
-	}
 
+	}
 
 	@Override
 	public boolean doesItemStackMatchesDuctDetails(ItemStack itemStack) {
@@ -151,5 +142,5 @@ public class WireDetails extends DuctDetails {
 		}
 		return false;
 	}
-	
+
 }
